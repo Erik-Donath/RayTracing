@@ -23,7 +23,7 @@ void Renderer::Render() {
 			glm::vec2 coord = { (float)x / mImage->GetWidth(), (float)y / mImage->GetHeight() };
 			coord = coord * 2.0f - 1.0f; // 0 - 1 --> -1 - 1
 			glm::vec4 color = PerPixel(coord);
-			//color = glm::clamp(color, glm::vec4(0.0f), glm::vec4(1.0f));
+			color = glm::clamp(color, glm::vec4(0.0f), glm::vec4(1.0f));
 			mPixels[x + y * mImage->GetWidth()] = Utils::ToRGBA(color);
 		}
 	}
@@ -39,12 +39,23 @@ glm::vec4 Renderer::PerPixel(glm::vec2 coord) {
 	float b = 2.0f * glm::dot(mRayOri, rayDir);
 	float c = glm::dot(mRayOri, mRayOri) - radius * radius;
 
+	// b^2 - 4ac
 	float dis = b * b - 4.0f * a * c;
 
 	if (dis < 0.0f) { // Ray didn't hit
 		return mSkyColor;
 	}
 
+	// (-b +|- sqrt(dis)) / 2a
+	//float t0 = -b + glm::sqrt(dis) / 2.0f * a;
+	float t1 = (-b - glm::sqrt(dis)) / (2.0f * a); // nearest
 
-	return mSphereColor;
+	//glm::vec3 h0 = mRayOri + rayDir * t0;
+	glm::vec3 hitPoint = mRayOri + rayDir * t1;
+	glm::vec3 normal = glm::normalize(hitPoint); //  * 0.5f + 0.5f
+	
+	float d = glm::max(glm::dot(normal, -glm::normalize(mLightDir)), 0.0f);
+	
+
+	return glm::vec4(mSphereColor * d, 1.0f);
 }

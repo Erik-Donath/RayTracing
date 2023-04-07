@@ -11,14 +11,18 @@ public:
 	virtual void OnUIRender() override {
 		ImGui::Begin("Settings");
 		ImGui::Text("Last render: %.3fms", mLastRenderTime);
-		if (ImGui::Button("Render"))
+		if (ImGui::Button("Render")) {
+			autoRender = false;
 			Render();
+		}
+		ImGui::Checkbox("Auto Render", &autoRender);
 		ImGui::DragFloat3("Ray Origin", mRenderer.GetRayOri(), 0.1f);
 		ImGui::ColorEdit4("Sky Color", mRenderer.GetSkyColor());
+		ImGui::DragFloat3("Light Dir", mRenderer.GetLightDir(), 0.1f);
 
 		ImGui::Separator();
 		ImGui::DragFloat("Sphere Radius", mRenderer.GetSphereRadius(), 0.1f);
-		ImGui::ColorEdit4("Sphere Color", mRenderer.GetSphereColor());
+		ImGui::ColorEdit3("Sphere Color", mRenderer.GetSphereColor());
 
 		ImGui::End();
 
@@ -34,7 +38,8 @@ public:
 		ImGui::End();
 		ImGui::PopStyleVar();
 
-		Render();
+		if(autoRender)
+			Render();
 	}
 
 	void Render() {
@@ -52,6 +57,7 @@ private:
 
 	float mViewWidth = 0, mViewHeight = 0;
 	float mLastRenderTime = 0;
+	bool autoRender = true;
 };
 
 Walnut::Application* Walnut::CreateApplication(int argc, char** argv) {

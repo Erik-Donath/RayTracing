@@ -20,6 +20,9 @@ public:
 	float* GetRayOri() {
 		return (float*)&mRayOri;
 	}
+	float* GetLightDir() {
+		return (float*)&mLightDir;
+	}
 
 	float* GetSphereRadius() {
 		return &mSphereRadius;
@@ -36,7 +39,8 @@ private:
 
 	glm::vec4 mSkyColor = { 0.0f, 0.0f, 0.0f, 1.0f };
 	glm::vec3 mRayOri = { 0.0f, 0.0f, 2.0f };
+	glm::vec3 mLightDir = { -1.0f, -1.0f, -1.0f };
 
 	float mSphereRadius = 0.5f;
-	glm::vec4 mSphereColor = { 0.0f, 1.0f, 1.0f, 1.0f };
+	glm::vec3 mSphereColor = { 0.0f, 1.0f, 1.0f};
 };
