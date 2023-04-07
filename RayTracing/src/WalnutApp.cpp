@@ -5,9 +5,15 @@
 #include "Walnut/Timer.h"
 
 #include "Renderer.h"
+#include "Camera.h"
 
 class AppLayer : public Walnut::Layer {
 public:
+	AppLayer() : mCamera(45.0f, 0.1f, 100.0f) { }
+
+	virtual void OnUpdate(float ts) override {
+		mCamera.OnUpdate(ts);
+	}
 	virtual void OnUIRender() override {
 		ImGui::Begin("Settings");
 		ImGui::Text("Last render: %.3fms", mLastRenderTime);
@@ -16,9 +22,12 @@ public:
 			Render();
 		}
 		ImGui::Checkbox("Auto Render", &autoRender);
-		ImGui::DragFloat3("Ray Origin", mRenderer.GetRayOri(), 0.1f);
 		ImGui::ColorEdit4("Sky Color", mRenderer.GetSkyColor());
 		ImGui::DragFloat3("Light Dir", mRenderer.GetLightDir(), 0.1f);
+		ImGui::Separator();
+
+		ImGui::DragFloat3("Cam Position",  (float*)&mCamera.GetPosition(), 0.1f);
+		ImGui::DragFloat3("Cam Direction", (float*)&mCamera.GetDirection(), 0.1f);
 
 		ImGui::Separator();
 		ImGui::DragFloat("Sphere Radius", mRenderer.GetSphereRadius(), 0.1f);
@@ -46,13 +55,16 @@ public:
 		timer.Reset();
 
 		mRenderer.OnResize(mViewWidth, mViewHeight);
-		mRenderer.Render();
+		mCamera.OnResize(mViewWidth, mViewHeight);
+		mRenderer.Render(mCamera);
 
 		mLastRenderTime = timer.ElapsedMillis();
 	}
 
 private:
 	Renderer mRenderer;
+	Camera mCamera;
+
 	Walnut::Timer timer;
 
 	float mViewWidth = 0, mViewHeight = 0;
