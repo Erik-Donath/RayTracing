@@ -14,7 +14,12 @@ public:
 		if (ImGui::Button("Render"))
 			Render();
 		ImGui::DragFloat3("Ray Origin", mRenderer.GetRayOri(), 0.1f);
-		ImGui::ColorEdit3("Sky Color", mRenderer.GetSkyColor());
+		ImGui::ColorEdit4("Sky Color", mRenderer.GetSkyColor());
+
+		ImGui::Separator();
+		ImGui::DragFloat("Sphere Radius", mRenderer.GetSphereRadius(), 0.1f);
+		ImGui::ColorEdit4("Sphere Color", mRenderer.GetSphereColor());
+
 		ImGui::End();
 
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));

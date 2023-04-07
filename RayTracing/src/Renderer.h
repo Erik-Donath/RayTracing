@@ -15,18 +15,28 @@ public:
 		return mImage;
 	}
 	float* GetSkyColor() {
-		return skyColor;
+		return (float*)&mSkyColor;
 	}
 	float* GetRayOri() {
-		return (float*)&rayOri;
+		return (float*)&mRayOri;
+	}
+
+	float* GetSphereRadius() {
+		return &mSphereRadius;
+	}
+	float* GetSphereColor() {
+		return (float*)&mSphereColor;
 	}
 
 private:
-	uint32_t PerPixel(glm::vec2 coord);
+	glm::vec4 PerPixel(glm::vec2 coord);
 
 	std::shared_ptr<Walnut::Image> mImage;
 	uint32_t* mPixels = nullptr;
 
-	float skyColor[3] = {0.0f, 0.0f, 0.0f};
-	glm::vec3 rayOri = { 0.0f, 0.0f, -4.0f };
+	glm::vec4 mSkyColor = { 0.0f, 0.0f, 0.0f, 1.0f };
+	glm::vec3 mRayOri = { 0.0f, 0.0f, 2.0f };
+
+	float mSphereRadius = 0.5f;
+	glm::vec4 mSphereColor = { 0.0f, 1.0f, 1.0f, 1.0f };
 };
