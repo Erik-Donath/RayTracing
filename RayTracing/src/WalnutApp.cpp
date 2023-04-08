@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "Walnut/Application.h"
 #include "Walnut/EntryPoint.h"
 
@@ -9,7 +11,13 @@
 
 class AppLayer : public Walnut::Layer {
 public:
-	AppLayer() : mCamera(45.0f, 0.1f, 100.0f) { }
+	AppLayer() : mCamera(45.0f, 0.1f, 100.0f) {
+		mScene.Spheres.push_back(Sphere{ {0.0f, 0.0f, 0.0f}, 0.5f, { 0.0f, 1.0f, 1.0f } });
+		mScene.Spheres.push_back(Sphere{ {1.0f, 0.0f, 0.0f}, 0.5f, { 1.0f, 0.0f, 0.0f } });
+		mScene.Spheres.push_back(Sphere{ {0.0f, 1.0f, 0.0f}, 0.5f, { 0.0f, 1.0f, 0.0f } });
+		mScene.Spheres.push_back(Sphere{ {0.0f, 0.0f, 1.0f}, 0.5f, { 0.0f, 0.0f, 1.0f } });
+		mScene.Spheres.push_back(Sphere{ {1.0f, 1.0f, 1.0f}, 0.5f, { 1.0f, 1.0f, 1.0f } });
+	}
 
 	virtual void OnUpdate(float ts) override {
 		mCamera.OnUpdate(ts);
@@ -26,13 +34,44 @@ public:
 		ImGui::DragFloat3("Light Dir", mRenderer.GetLightDir(), 0.1f);
 		ImGui::Separator();
 
-		ImGui::DragFloat3("Cam Position",  (float*)&mCamera.GetPosition(), 0.1f);
+		ImGui::DragFloat3("Cam Position", (float*)&mCamera.GetPosition(), 0.1f);
 		ImGui::DragFloat3("Cam Direction", (float*)&mCamera.GetDirection(), 0.1f);
 
-		ImGui::Separator();
-		ImGui::DragFloat("Sphere Radius", mRenderer.GetSphereRadius(), 0.1f);
-		ImGui::ColorEdit3("Sphere Color", mRenderer.GetSphereColor());
+		ImGui::End();
 
+		ImGui::Begin("Scene");
+
+		// Create Spheres
+		if (ImGui::Button("Create Sphere")) {
+			mScene.Spheres.push_back(Sphere{ mCreatePosition, mCreateRadius, mCreateColor });
+			mCreatePosition = { 0.0f, 0.0f, 0.0f };
+			mCreateRadius = 1.0f;
+			mCreateColor = { 1.0f, 1.0f, 1.0f };
+		}
+		ImGui::DragFloat3("Position", (float*)&mCreatePosition, 0.1f);
+		ImGui::DragFloat("Radius", &mCreateRadius, 0.1f);
+		ImGui::ColorEdit3("Color", (float*)&mCreateColor);
+		ImGui::Separator();
+
+		// Delete objectes
+		for (int i = 0; i < objectsToDelete.size(); i++) {
+			mScene.Spheres.erase(mScene.Spheres.begin() + objectsToDelete[i]);
+		}
+		objectsToDelete.clear();
+
+		// Show objects
+		for (int i = 0; i < mScene.Spheres.size(); i++) {
+			ImGui::PushID(i);
+			ImGui::Text("Sphere %i", i + 1);
+			if (ImGui::Button("Delete")) {
+				objectsToDelete.push_back(i);
+			}
+			ImGui::DragFloat3("Position", (float*)&mScene.Spheres[i].Position, 0.1f);
+			ImGui::DragFloat("Radius", &mScene.Spheres[i].Radius, 0.1f);
+			ImGui::ColorEdit3("Color", (float*)&mScene.Spheres[i].Color);
+			ImGui::Separator();
+			ImGui::PopID();
+		}
 		ImGui::End();
 
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
@@ -56,14 +95,20 @@ public:
 
 		mRenderer.OnResize(mViewWidth, mViewHeight);
 		mCamera.OnResize(mViewWidth, mViewHeight);
-		mRenderer.Render(mCamera);
+		mRenderer.Render(mScene, mCamera);
 
 		mLastRenderTime = timer.ElapsedMillis();
 	}
 
 private:
+	Scene mScene;
 	Renderer mRenderer;
 	Camera mCamera;
+
+	glm::vec3 mCreatePosition{0.0f, 0.0f, 0.0f};
+	float mCreateRadius = 1.0f;
+	glm::vec3 mCreateColor{1.0f, 1.0f, 1.0f};
+	std::vector<int> objectsToDelete;
 
 	Walnut::Timer timer;
 
