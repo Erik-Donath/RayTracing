@@ -9,9 +9,9 @@
 using namespace Walnut;
 
 Camera::Camera(float verticalFOV, float nearClip, float farClip)
-	: m_VerticalFOV(verticalFOV), m_NearClip(nearClip), m_FarClip(farClip) {
-	m_ForwardDirection = glm::vec3(0, 0, -1);
-	m_Position = glm::vec3(0, 0, 6);
+	: mVerticalFOV(verticalFOV), mNearClip(nearClip), mFarClip(farClip) {
+	mForwardDirection = glm::vec3(0, 0, -1);
+	mPosition = glm::vec3(0, 0, 6);
 }
 
 bool Camera::OnUpdate(float ts) {
@@ -29,33 +29,33 @@ bool Camera::OnUpdate(float ts) {
 	bool moved = false;
 
 	constexpr glm::vec3 upDirection(0.0f, 1.0f, 0.0f);
-	glm::vec3 rightDirection = glm::cross(m_ForwardDirection, upDirection);
+	glm::vec3 rightDirection = glm::cross(mForwardDirection, upDirection);
 
 	float speed = 5.0f;
 
 	// Movement
 	if (Input::IsKeyDown(KeyCode::W)) {
-		m_Position += m_ForwardDirection * speed * ts;
+		mPosition += mForwardDirection * speed * ts;
 		moved = true;
 	}
 	else if (Input::IsKeyDown(KeyCode::S)) {
-		m_Position -= m_ForwardDirection * speed * ts;
+		mPosition -= mForwardDirection * speed * ts;
 		moved = true;
 	}
 	if (Input::IsKeyDown(KeyCode::A)) {
-		m_Position -= rightDirection * speed * ts;
+		mPosition -= rightDirection * speed * ts;
 		moved = true;
 	}
 	else if (Input::IsKeyDown(KeyCode::D)) {
-		m_Position += rightDirection * speed * ts;
+		mPosition += rightDirection * speed * ts;
 		moved = true;
 	}
 	if (Input::IsKeyDown(KeyCode::Q)) {
-		m_Position -= upDirection * speed * ts;
+		mPosition -= upDirection * speed * ts;
 		moved = true;
 	}
 	else if (Input::IsKeyDown(KeyCode::E)) {
-		m_Position += upDirection * speed * ts;
+		mPosition += upDirection * speed * ts;
 		moved = true;
 	}
 
@@ -66,7 +66,7 @@ bool Camera::OnUpdate(float ts) {
 
 		glm::quat q = glm::normalize(glm::cross(glm::angleAxis(-pitchDelta, rightDirection),
 			glm::angleAxis(-yawDelta, glm::vec3(0.f, 1.0f, 0.0f))));
-		m_ForwardDirection = glm::rotate(q, m_ForwardDirection);
+		mForwardDirection = glm::rotate(q, mForwardDirection);
 
 		moved = true;
 	}
@@ -91,6 +91,11 @@ void Camera::OnResize(uint32_t width, uint32_t height) {
 	delete[] mPixels;
 	mPixels = new uint32_t[width * height];
 
+	mIndiexes.resize(width * height);
+	for (uint32_t i = 0; i < width * height; i++) {
+		mIndiexes[i] = i;
+	}
+
 	RecalculateProjection();
 	RecalculateView(); // A
 	RecalculateRayDirections();
@@ -101,26 +106,26 @@ float Camera::GetRotationSpeed() {
 }
 
 void Camera::RecalculateProjection() {
-	m_Projection = glm::perspectiveFov(glm::radians(m_VerticalFOV), (float)mImage->GetWidth(), (float)mImage->GetHeight(), m_NearClip, m_FarClip);
-	m_InverseProjection = glm::inverse(m_Projection);
+	mProjection = glm::perspectiveFov(glm::radians(mVerticalFOV), (float)mImage->GetWidth(), (float)mImage->GetHeight(), mNearClip, mFarClip);
+	mInverseProjection = glm::inverse(mProjection);
 }
 
 void Camera::RecalculateView() {
-	m_View = glm::lookAt(m_Position, m_Position + m_ForwardDirection, glm::vec3(0, 1, 0));
-	m_InverseView = glm::inverse(m_View);
+	mView = glm::lookAt(mPosition, mPosition + mForwardDirection, glm::vec3(0, 1, 0));
+	mInverseView = glm::inverse(mView);
 }
 
 void Camera::RecalculateRayDirections() {
-	m_RayDirections.resize(mImage->GetWidth() * mImage->GetHeight());
+	mRayDirections.resize(mImage->GetWidth() * mImage->GetHeight());
 
 	for (uint32_t y = 0; y < mImage->GetHeight(); y++) {
 		for (uint32_t x = 0; x < mImage->GetWidth(); x++) {
 			glm::vec2 coord = { (float)x / (float)mImage->GetWidth(), (float)y / (float)mImage->GetHeight() };
 			coord = coord * 2.0f - 1.0f; // -1 -> 1
 
-			glm::vec4 target = m_InverseProjection * glm::vec4(coord.x, coord.y, 1, 1);
-			glm::vec3 rayDirection = glm::vec3(m_InverseView * glm::vec4(glm::normalize(glm::vec3(target) / target.w), 0)); // World space
-			m_RayDirections[x + y * mImage->GetWidth()] = rayDirection;
+			glm::vec4 target = mInverseProjection * glm::vec4(coord.x, coord.y, 1, 1);
+			glm::vec3 rayDirection = glm::vec3(mInverseView * glm::vec4(glm::normalize(glm::vec3(target) / target.w), 0)); // World space
+			mRayDirections[x + y * mImage->GetWidth()] = rayDirection;
 		}
 	}
 }

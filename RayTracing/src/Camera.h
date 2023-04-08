@@ -14,27 +14,30 @@ public:
 	void OnResize(uint32_t width, uint32_t height);
 
 	const glm::mat4& GetProjection() const {
-		return m_Projection;
+		return mProjection;
 	}
 	const glm::mat4& GetInverseProjection() const {
-		return m_InverseProjection;
+		return mInverseProjection;
 	}
 	const glm::mat4& GetView() const {
-		return m_View;
+		return mView;
 	}
 	const glm::mat4& GetInverseView() const {
-		return m_InverseView;
+		return mInverseView;
 	}
 	const glm::vec3& GetPosition() const {
-		return m_Position;
+		return mPosition;
 	}
 	const glm::vec3& GetDirection() const {
-		return m_ForwardDirection;
+		return mForwardDirection;
 	}
 	const std::vector<glm::vec3>& GetRayDirections() const {
-		return m_RayDirections;
+		return mRayDirections;
 	}
-	const std::shared_ptr<Walnut::Image> GetImage() const {
+	const std::vector<uint32_t>& GetIndexes() const {
+		return mIndiexes;
+	}
+	const std::shared_ptr<Walnut::Image>& GetImage() const {
 		return mImage;
 	}
 	uint32_t* GetPixels() const {
@@ -47,20 +50,21 @@ private:
 	void RecalculateView();
 	void RecalculateRayDirections();
 private:
-	glm::mat4 m_Projection{ 1.0f };
-	glm::mat4 m_View{ 1.0f };
-	glm::mat4 m_InverseProjection{ 1.0f };
-	glm::mat4 m_InverseView{ 1.0f };
+	glm::mat4 mProjection{ 1.0f };
+	glm::mat4 mView{ 1.0f };
+	glm::mat4 mInverseProjection{ 1.0f };
+	glm::mat4 mInverseView{ 1.0f };
 
-	float m_VerticalFOV = 45.0f;
-	float m_NearClip = 0.1f;
-	float m_FarClip = 100.0f;
+	float mVerticalFOV = 45.0f;
+	float mNearClip = 0.1f;
+	float mFarClip = 100.0f;
 
-	glm::vec3 m_Position{ 0.0f, 0.0f, 0.0f };
-	glm::vec3 m_ForwardDirection{ 0.0f, 0.0f, 0.0f };
+	glm::vec3 mPosition{ 0.0f, 0.0f, 0.0f };
+	glm::vec3 mForwardDirection{ 0.0f, 0.0f, 0.0f };
 
 	// Cached ray directions
-	std::vector<glm::vec3> m_RayDirections;
+	std::vector<glm::vec3> mRayDirections;
+	std::vector<uint32_t> mIndiexes;
 
 	glm::vec2 m_LastMousePosition{ 0.0f, 0.0f };
 	std::shared_ptr<Walnut::Image> mImage;
