@@ -1,47 +1,33 @@
 #include "Walnut/Random.h"
 
-#include "Scene.h"
 #include "Renderer.h"
 #include "Utils.h"
 #include "Ray.h"
 
-void Renderer::OnResize(uint32_t width, uint32_t height) {
-	if (!mImage) {
-		mImage = std::make_shared<Walnut::Image>(width, height, Walnut::ImageFormat::RGBA);
-		mPixels = new uint32_t[width * height];
-		return;
-	}
-
-	if (mImage->GetWidth() != width || mImage->GetHeight() != height) {
-		mImage->Resize(width, height);
-		delete[] mPixels;
-		mPixels = new uint32_t[width * height];
-	}
-}
-
-void Renderer::Render(const Scene& scene, const Camera& camera) {
+void Renderer::Render(const Camera& camera) {
 	Ray ray;
 	ray.Origin = camera.GetPosition();
-
-	for (uint32_t y = 0; y < mImage->GetHeight(); y++) {
-		for (uint32_t x = 0; x < mImage->GetWidth(); x++) {
-			int i = x + y * mImage->GetWidth();
+	std::shared_ptr<Walnut::Image> image = camera.GetImage();
+	uint32_t* pixels = camera.GetPixels();
+	for (uint32_t y = 0; y < image->GetHeight(); y++) {
+		for (uint32_t x = 0; x < image->GetWidth(); x++) {
+			int i = x + y * image->GetWidth();
 			ray.Direction = camera.GetRayDirections()[i];
 
-			glm::vec4 color = TraceRay(scene, ray);
+			glm::vec4 color = TraceRay(ray);
 			color = glm::clamp(color, glm::vec4(0.0f), glm::vec4(1.0f));
-			mPixels[i] = Utils::ToRGBA(color);
+			pixels[i] = Utils::ToRGBA(color);
 		}
 	}
-	mImage->SetData(mPixels);
+	image->SetData(pixels);
 }
-glm::vec4 Renderer::TraceRay(const Scene& scene, const Ray& ray) {
-	if (scene.Spheres.size() == 0)
+glm::vec4 Renderer::TraceRay(const Ray& ray) {
+	if (mScene->Spheres.size() == 0)
 		return mSkyColor;
 
 	const Sphere* closestSphere = nullptr;
 	float closestHitDist = std::numeric_limits<float>::max();
-	for (const Sphere& sphere : scene.Spheres) {
+	for (const Sphere& sphere : mScene->Spheres) {
 		glm::vec3 origin = ray.Origin - sphere.Position;
 		float a = glm::dot(ray.Direction, ray.Direction);
 		float b = 2.0f * glm::dot(origin, ray.Direction);

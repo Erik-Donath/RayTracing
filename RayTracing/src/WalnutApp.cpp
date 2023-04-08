@@ -11,7 +11,7 @@
 
 class AppLayer : public Walnut::Layer {
 public:
-	AppLayer() : mCamera(45.0f, 0.1f, 100.0f) {
+	AppLayer() : mCamera(45.0f, 0.1f, 100.0f), mRenderer(&mScene) {
 		mScene.Spheres.push_back(Sphere{ {0.0f, 0.0f, 0.0f}, 0.5f, { 0.0f, 1.0f, 1.0f } });
 		mScene.Spheres.push_back(Sphere{ {1.0f, 0.0f, 0.0f}, 0.5f, { 1.0f, 0.0f, 0.0f } });
 		mScene.Spheres.push_back(Sphere{ {0.0f, 1.0f, 0.0f}, 0.5f, { 0.0f, 1.0f, 0.0f } });
@@ -24,7 +24,7 @@ public:
 	}
 	virtual void OnUIRender() override {
 		ImGui::Begin("Settings");
-		ImGui::Text("Last render: %.3fms", mLastRenderTime);
+		ImGui::Text("Last render: %.3fms", mLastFullRenderTime);
 		if (ImGui::Button("Render")) {
 			autoRender = false;
 			Render();
@@ -75,11 +75,11 @@ public:
 		ImGui::End();
 
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-		ImGui::Begin("Viewport");
+		ImGui::Begin("Viewport 1");
 		mViewWidth = ImGui::GetContentRegionAvail().x;
 		mViewHeight = ImGui::GetContentRegionAvail().y;
 
-		std::shared_ptr<Walnut::Image> view = mRenderer.GetImage();
+		std::shared_ptr<Walnut::Image> view = mCamera.GetImage();
 		if(view)
 			ImGui::Image(view->GetDescriptorSet(), { (float)view->GetWidth(), (float)view->GetHeight() }, ImVec2(0, 1), ImVec2(1, 0));
 
@@ -93,13 +93,11 @@ public:
 	void Render() {
 		timer.Reset();
 
-		mRenderer.OnResize(mViewWidth, mViewHeight);
 		mCamera.OnResize(mViewWidth, mViewHeight);
-		mRenderer.Render(mScene, mCamera);
+		mRenderer.Render(mCamera);
 
-		mLastRenderTime = timer.ElapsedMillis();
+		mLastFullRenderTime = timer.ElapsedMillis();
 	}
-
 private:
 	Scene mScene;
 	Renderer mRenderer;
@@ -113,7 +111,7 @@ private:
 	Walnut::Timer timer;
 
 	float mViewWidth = 0, mViewHeight = 0;
-	float mLastRenderTime = 0;
+	float mLastFullRenderTime = 0;
 	bool autoRender = true;
 };
 

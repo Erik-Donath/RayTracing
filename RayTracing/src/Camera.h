@@ -1,25 +1,45 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <memory>
 #include <vector>
 
-class Camera
-{
+#include "Walnut\Image.h"
+
+class Camera {
 public:
 	Camera(float verticalFOV, float nearClip, float farClip);
 
 	bool OnUpdate(float ts);
 	void OnResize(uint32_t width, uint32_t height);
 
-	const glm::mat4& GetProjection() const { return m_Projection; }
-	const glm::mat4& GetInverseProjection() const { return m_InverseProjection; }
-	const glm::mat4& GetView() const { return m_View; }
-	const glm::mat4& GetInverseView() const { return m_InverseView; }
-
-	const glm::vec3& GetPosition() const { return m_Position; }
-	const glm::vec3& GetDirection() const { return m_ForwardDirection; }
-
-	const std::vector<glm::vec3>& GetRayDirections() const { return m_RayDirections; }
+	const glm::mat4& GetProjection() const {
+		return m_Projection;
+	}
+	const glm::mat4& GetInverseProjection() const {
+		return m_InverseProjection;
+	}
+	const glm::mat4& GetView() const {
+		return m_View;
+	}
+	const glm::mat4& GetInverseView() const {
+		return m_InverseView;
+	}
+	const glm::vec3& GetPosition() const {
+		return m_Position;
+	}
+	const glm::vec3& GetDirection() const {
+		return m_ForwardDirection;
+	}
+	const std::vector<glm::vec3>& GetRayDirections() const {
+		return m_RayDirections;
+	}
+	const std::shared_ptr<Walnut::Image> GetImage() const {
+		return mImage;
+	}
+	uint32_t* GetPixels() const {
+		return mPixels;
+	}
 
 	float GetRotationSpeed();
 private:
@@ -43,6 +63,6 @@ private:
 	std::vector<glm::vec3> m_RayDirections;
 
 	glm::vec2 m_LastMousePosition{ 0.0f, 0.0f };
-
-	uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0;
+	std::shared_ptr<Walnut::Image> mImage;
+	uint32_t* mPixels = nullptr;
 };
