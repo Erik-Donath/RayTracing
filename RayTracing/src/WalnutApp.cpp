@@ -12,10 +12,13 @@
 class AppLayer : public Walnut::Layer {
 public:
 	AppLayer() : mCamera(45.0f, 0.1f, 100.0f), mRenderer(&mScene) {
-		mScene.Spheres.push_back(Sphere{ {0.0f, 0.0f, 0.0f}, 0.5f, { 0.0f, 1.0f, 1.0f } });
+		mScene.Spheres.push_back(Sphere{ {0.0f, 0.0f, 0.0f}, 0.5f, { 0.0f, 0.0f, 0.0f } });
 		mScene.Spheres.push_back(Sphere{ {1.0f, 0.0f, 0.0f}, 0.5f, { 1.0f, 0.0f, 0.0f } });
 		mScene.Spheres.push_back(Sphere{ {0.0f, 1.0f, 0.0f}, 0.5f, { 0.0f, 1.0f, 0.0f } });
+		mScene.Spheres.push_back(Sphere{ {1.0f, 1.0f, 0.0f}, 0.5f, { 1.0f, 1.0f, 0.0f } });
 		mScene.Spheres.push_back(Sphere{ {0.0f, 0.0f, 1.0f}, 0.5f, { 0.0f, 0.0f, 1.0f } });
+		mScene.Spheres.push_back(Sphere{ {1.0f, 0.0f, 1.0f}, 0.5f, { 1.0f, 0.0f, 1.0f } });
+		mScene.Spheres.push_back(Sphere{ {0.0f, 1.0f, 1.0f}, 0.5f, { 0.0f, 1.0f, 1.0f } });
 		mScene.Spheres.push_back(Sphere{ {1.0f, 1.0f, 1.0f}, 0.5f, { 1.0f, 1.0f, 1.0f } });
 	}
 
