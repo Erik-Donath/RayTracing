@@ -1,14 +1,15 @@
 #pragma once
 
-#include <glm/glm.hpp>
 #include <memory>
 #include <vector>
-
+#include <glm/glm.hpp>
 #include "Walnut\Image.h"
+
+#include "RenderTarget.h"
 
 class Camera {
 public:
-	Camera(float verticalFOV, float nearClip, float farClip);
+	Camera(float verticalFOV, float nearClip, float farClip, RenderTarget* renderTarget);
 
 	bool OnUpdate(float ts);
 	void OnResize(uint32_t width, uint32_t height);
@@ -37,11 +38,8 @@ public:
 	const std::vector<uint32_t>& GetIndexes() const {
 		return mIndiexes;
 	}
-	const std::shared_ptr<Walnut::Image>& GetImage() const {
-		return mImage;
-	}
-	uint32_t* GetPixels() const {
-		return mPixels;
+	RenderTarget* GetRenderTarget() {
+		return mRenderTarget;
 	}
 
 	float GetRotationSpeed();
@@ -67,6 +65,6 @@ private:
 	std::vector<uint32_t> mIndiexes;
 
 	glm::vec2 m_LastMousePosition{ 0.0f, 0.0f };
-	std::shared_ptr<Walnut::Image> mImage;
-	uint32_t* mPixels = nullptr;
+
+	RenderTarget* mRenderTarget;
 };

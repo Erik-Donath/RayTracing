@@ -8,10 +8,11 @@
 
 #include "Renderer.h"
 #include "Camera.h"
+#include "Settings.h"
 
 class AppLayer : public Walnut::Layer {
 public:
-	AppLayer() : mCamera(45.0f, 0.1f, 100.0f), mRenderer(&mScene) {
+	AppLayer() : mCamera(45.0f, 0.1f, 100.0f, new ImageTarget()), mRenderer(&mScene) {
 		mScene.Spheres.push_back(Sphere{ {0.0f, 0.0f, 0.0f}, 0.5f, { 0.0f, 0.0f, 0.0f } });
 		mScene.Spheres.push_back(Sphere{ {1.0f, 0.0f, 0.0f}, 0.5f, { 1.0f, 0.0f, 0.0f } });
 		mScene.Spheres.push_back(Sphere{ {0.0f, 1.0f, 0.0f}, 0.5f, { 0.0f, 1.0f, 0.0f } });
@@ -33,8 +34,8 @@ public:
 			Render();
 		}
 		ImGui::Checkbox("Auto Render", &autoRender);
-		ImGui::ColorEdit4("Sky Color", mRenderer.GetSkyColor());
-		ImGui::DragFloat3("Light Dir", mRenderer.GetLightDir(), 0.1f);
+		ImGui::ColorEdit4("Sky Color", (float*)&mScene.SkyColor);
+		ImGui::DragFloat3("Light Dir", (float*)&mScene.LightDir, 0.1f);
 		ImGui::Separator();
 
 		ImGui::DragFloat3("Cam Position", (float*)&mCamera.GetPosition(), 0.1f);
@@ -82,9 +83,12 @@ public:
 		mViewWidth = ImGui::GetContentRegionAvail().x;
 		mViewHeight = ImGui::GetContentRegionAvail().y;
 
-		std::shared_ptr<Walnut::Image> view = mCamera.GetImage();
-		if(view)
-			ImGui::Image(view->GetDescriptorSet(), { (float)view->GetWidth(), (float)view->GetHeight() }, ImVec2(0, 1), ImVec2(1, 0));
+		ImageTarget* imageTarget = (ImageTarget*)mCamera.GetRenderTarget();
+		if (imageTarget != nullptr) {
+			std::shared_ptr<Walnut::Image> view = imageTarget->GetImage();
+			if(view)
+				ImGui::Image(view->GetDescriptorSet(), {(float)view->GetWidth(), (float)view->GetHeight()}, ImVec2(0, 1), ImVec2(1, 0));
+		}
 
 		ImGui::End();
 		ImGui::PopStyleVar();

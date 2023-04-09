@@ -10,4 +10,7 @@ struct Sphere {
 };
 struct Scene {
 	std::vector<Sphere> Spheres;
+
+	glm::vec4 SkyColor = { 0.2f, 0.2f, 0.2f, 1.0f };
+	glm::vec3 LightDir = { -1.0f, -1.0f, -1.0f };
 };

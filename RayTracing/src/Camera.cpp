@@ -8,8 +8,8 @@
 
 using namespace Walnut;
 
-Camera::Camera(float verticalFOV, float nearClip, float farClip)
-	: mVerticalFOV(verticalFOV), mNearClip(nearClip), mFarClip(farClip) {
+Camera::Camera(float verticalFOV, float nearClip, float farClip, RenderTarget* renderTarget)
+	: mVerticalFOV(verticalFOV), mNearClip(nearClip), mFarClip(farClip), mRenderTarget(renderTarget) {
 	mForwardDirection = glm::vec3(0, 0, -1);
 	mPosition = glm::vec3(0, 0, 6);
 }
@@ -80,16 +80,9 @@ bool Camera::OnUpdate(float ts) {
 }
 
 void Camera::OnResize(uint32_t width, uint32_t height) {
-	if (mImage == nullptr) {
-		mImage = std::make_shared<Walnut::Image>(width, height, Walnut::ImageFormat::RGBA);
-		mPixels = new uint32_t[width * height];
-	}
-	else if (width == mImage->GetWidth() && height == mImage->GetHeight())
+	bool resized = mRenderTarget->OnRezise(width, height);
+	if (!resized)
 		return;
-	
-	mImage->Resize(width, height);
-	delete[] mPixels;
-	mPixels = new uint32_t[width * height];
 
 	mIndiexes.resize(width * height);
 	for (uint32_t i = 0; i < width * height; i++) {
@@ -105,8 +98,8 @@ float Camera::GetRotationSpeed() {
 	return 0.3f;
 }
 
-void Camera::RecalculateProjection() {
-	mProjection = glm::perspectiveFov(glm::radians(mVerticalFOV), (float)mImage->GetWidth(), (float)mImage->GetHeight(), mNearClip, mFarClip);
+void Camera::RecalculateProjection() { // GH
+	mProjection = glm::perspectiveFov(glm::radians(mVerticalFOV), (float)mRenderTarget->GetWidth(), (float)mRenderTarget->GetHeight(), mNearClip, mFarClip);
 	mInverseProjection = glm::inverse(mProjection);
 }
 
@@ -116,16 +109,16 @@ void Camera::RecalculateView() {
 }
 
 void Camera::RecalculateRayDirections() {
-	mRayDirections.resize(mImage->GetWidth() * mImage->GetHeight());
+	mRayDirections.resize(mRenderTarget->GetWidth() * mRenderTarget->GetHeight());
 
-	for (uint32_t y = 0; y < mImage->GetHeight(); y++) {
-		for (uint32_t x = 0; x < mImage->GetWidth(); x++) {
-			glm::vec2 coord = { (float)x / (float)mImage->GetWidth(), (float)y / (float)mImage->GetHeight() };
+	for (uint32_t y = 0; y < mRenderTarget->GetHeight(); y++) {
+		for (uint32_t x = 0; x < mRenderTarget->GetWidth(); x++) {
+			glm::vec2 coord = { (float)x / (float)mRenderTarget->GetWidth(), (float)y / (float)mRenderTarget->GetHeight() };
 			coord = coord * 2.0f - 1.0f; // -1 -> 1
 
 			glm::vec4 target = mInverseProjection * glm::vec4(coord.x, coord.y, 1, 1);
 			glm::vec3 rayDirection = glm::vec3(mInverseView * glm::vec4(glm::normalize(glm::vec3(target) / target.w), 0)); // World space
-			mRayDirections[x + y * mImage->GetWidth()] = rayDirection;
+			mRayDirections[x + y * mRenderTarget->GetWidth()] = rayDirection;
 		}
 	}
 }
