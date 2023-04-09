@@ -24,7 +24,6 @@ void Renderer::Render(Camera& camera) {
 		Ray ray;
 		ray.Origin = camera.GetPosition();
 		ray.Direction = camera.GetRayDirections()[i];
-
 		glm::vec4 color = TraceRay(ray);
 		color = glm::clamp(color, glm::vec4(0.0f), glm::vec4(1.0f));
 		pixels[i] = Utils::ToRGBA(color);
@@ -32,15 +31,11 @@ void Renderer::Render(Camera& camera) {
 	#else
 	Ray ray;
 	ray.Origin = camera.GetPosition();
-	for (uint32_t y = 0; y < renderTarget->GetHeight(); y++) {
-		for (uint32_t x = 0; x < renderTarget->GetWidth(); x++) {
-			int i = x + y * renderTarget->GetWidth();
-			ray.Direction = camera.GetRayDirections()[i];
-
-			glm::vec4 color = TraceRay(ray);
-			color = glm::clamp(color, glm::vec4(0.0f), glm::vec4(1.0f));
-			pixels[i] = Utils::ToRGBA(color);
-		}
+	for (uint32_t i = 0; i < renderTarget->GetWidth() * renderTarget->GetHeight(); i++) {
+		ray.Direction = camera.GetRayDirections()[i];
+		glm::vec4 color = TraceRay(ray);
+		color = glm::clamp(color, glm::vec4(0.0f), glm::vec4(1.0f));
+		pixels[i] = Utils::ToRGBA(color);
 	}
 	#endif
 	renderTarget->UploadPixels();
