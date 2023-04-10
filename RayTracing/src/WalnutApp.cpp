@@ -34,8 +34,9 @@ public:
 			Render();
 		}
 		ImGui::Checkbox("Auto Render", &autoRender);
-		ImGui::ColorEdit4("Sky Color", (float*)&mScene.SkyColor);
+		ImGui::ColorEdit3("Sky Color", (float*)&mScene.SkyColor);
 		ImGui::DragFloat3("Light Dir", (float*)&mScene.LightDir, 0.1f);
+		ImGui::DragInt("Ray Bounces", (int*)mRenderer.GetRayBounces(), 1, 0, std::numeric_limits<int>::max());
 		ImGui::Separator();
 
 		ImGui::DragFloat3("Cam Position", (float*)&mCamera.GetPosition(), 0.1f);
@@ -63,12 +64,22 @@ public:
 		}
 		objectsToDelete.clear();
 
+		// Clone objectes
+		for (int i = 0; i < objectsToClone.size(); i++) {
+			Sphere& toClone = mScene.Spheres[objectsToClone[i]];
+			mScene.Spheres.push_back(Sphere(toClone));
+		}
+		objectsToClone.clear();
+
 		// Show objects
 		for (int i = 0; i < mScene.Spheres.size(); i++) {
 			ImGui::PushID(i);
 			ImGui::Text("Sphere %i", i + 1);
 			if (ImGui::Button("Delete")) {
 				objectsToDelete.push_back(i);
+			}
+			if (ImGui::Button("Clone")) {
+				objectsToClone.push_back(i);
 			}
 			ImGui::DragFloat3("Position", (float*)&mScene.Spheres[i].Position, 0.1f);
 			ImGui::DragFloat("Radius", &mScene.Spheres[i].Radius, 0.1f);
@@ -101,7 +112,7 @@ public:
 		timer.Reset();
 
 		mCamera.OnResize(mViewWidth, mViewHeight);
-		mRenderer.Render(mCamera);
+		mRenderer.Render(&mCamera);
 
 		mLastFullRenderTime = timer.ElapsedMillis();
 	}
@@ -114,6 +125,7 @@ private:
 	float mCreateRadius = 1.0f;
 	glm::vec3 mCreateColor{1.0f, 1.0f, 1.0f};
 	std::vector<int> objectsToDelete;
+	std::vector<int> objectsToClone;
 
 	Walnut::Timer timer;
 
