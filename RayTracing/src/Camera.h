@@ -64,7 +64,7 @@ private:
 	std::vector<glm::vec3> mRayDirections;
 	std::vector<uint32_t> mIndiexes;
 
-	glm::vec2 m_LastMousePosition{ 0.0f, 0.0f };
+	glm::vec2 mLastMousePosition{ 0.0f, 0.0f };
 
 	RenderTarget* mRenderTarget;
 };

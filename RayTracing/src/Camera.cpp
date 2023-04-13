@@ -16,8 +16,8 @@ Camera::Camera(float verticalFOV, float nearClip, float farClip, RenderTarget* r
 
 bool Camera::OnUpdate(float ts) {
 	glm::vec2 mousePos = Input::GetMousePosition();
-	glm::vec2 delta = (mousePos - m_LastMousePosition) * 0.002f;
-	m_LastMousePosition = mousePos;
+	glm::vec2 delta = (mousePos - mLastMousePosition) * 0.002f;
+	mLastMousePosition = mousePos;
 
 	if (!Input::IsMouseButtonDown(MouseButton::Right)) {
 		Input::SetCursorMode(CursorMode::Normal);
@@ -90,7 +90,7 @@ void Camera::OnResize(uint32_t width, uint32_t height) {
 	}
 
 	RecalculateProjection();
-	RecalculateView(); // A
+	RecalculateView(); // Maybe not?
 	RecalculateRayDirections();
 }
 
@@ -98,7 +98,7 @@ float Camera::GetRotationSpeed() {
 	return 0.3f;
 }
 
-void Camera::RecalculateProjection() { // GH
+void Camera::RecalculateProjection() {
 	mProjection = glm::perspectiveFov(glm::radians(mVerticalFOV), (float)mRenderTarget->GetWidth(), (float)mRenderTarget->GetHeight(), mNearClip, mFarClip);
 	mInverseProjection = glm::inverse(mProjection);
 }

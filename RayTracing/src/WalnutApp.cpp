@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include "Walnut/Application.h"
 #include "Walnut/EntryPoint.h"
 
@@ -9,6 +7,8 @@
 #include "Renderer.h"
 #include "Camera.h"
 #include "Settings.h"
+
+#include "Log.h"
 
 class AppLayer : public Walnut::Layer {
 public:
@@ -35,12 +35,12 @@ public:
 		}
 		ImGui::Checkbox("Auto Render", &autoRender);
 		ImGui::ColorEdit3("Sky Color", (float*)&mScene.SkyColor);
-		ImGui::DragFloat3("Light Dir", (float*)&mScene.LightDir, 0.1f);
+		ImGui::DragFloat3("Light Dir", (float*)&mScene.LightDir, 0.1f, 0.0f, 1.0f);
 		ImGui::DragInt("Ray Bounces", (int*)mRenderer.GetRayBounces(), 1, 0, std::numeric_limits<int>::max());
 		ImGui::Separator();
 
 		ImGui::DragFloat3("Cam Position", (float*)&mCamera.GetPosition(), 0.1f);
-		ImGui::DragFloat3("Cam Direction", (float*)&mCamera.GetDirection(), 0.1f);
+		ImGui::DragFloat3("Cam Direction", (float*)&mCamera.GetDirection(), 0.1f, 0.0f, 1.0f);
 
 		ImGui::End();
 
@@ -90,7 +90,7 @@ public:
 		ImGui::End();
 
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-		ImGui::Begin("Viewport 1");
+		ImGui::Begin("Viewport");
 		mViewWidth = ImGui::GetContentRegionAvail().x;
 		mViewHeight = ImGui::GetContentRegionAvail().y;
 
@@ -141,5 +141,6 @@ Walnut::Application* Walnut::CreateApplication(int argc, char** argv) {
 	Walnut::Application* app = new Walnut::Application(spec);
 	app->PushLayer<AppLayer>();
 
+	Log("Ja");
 	return app;
 }

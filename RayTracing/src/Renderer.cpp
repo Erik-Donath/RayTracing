@@ -1,4 +1,3 @@
-#include <iostream>
 #include <execution>
 #include "Walnut/Random.h"
 
@@ -6,17 +5,18 @@
 #include "Utils.h"
 #include "Ray.h"
 #include "RenderTarget.h"
+#include "Log.h"
 
 void Renderer::Render(Camera* camera) {
 	// Validate Args.
 	if (camera == nullptr) {
-		std::cout << "Render failed: Camera* is nullptr!" << std::endl;
+		Log("Render failed: Camera* is nullptr!");
 		return;
 	}
 	RenderTarget* renderTarget = camera->GetRenderTarget();
 	uint32_t* pixels = renderTarget->GetPixels();
 	if (renderTarget == nullptr || pixels == nullptr) {
-		std::cout << "Render failed: RenderTarget* is nullptr or pixels* is nullptr!" << std::endl;
+		Log("Render failed: RenderTarget* is nullptr or pixels* is nullptr!");
 		return;
 	}
 
@@ -69,7 +69,7 @@ glm::vec4 Renderer::RayGen(const uint32_t& i, Camera* camera) {
 }
 HitPayload Renderer::TraceRay(const Ray& ray) {
 	if (mScene->Spheres.size() == 0)
-		return Miss(ray);
+		return MissHit(ray);
 
 	int closestSphere = -1;
 	float closestHitDist = std::numeric_limits<float>::max();
@@ -98,7 +98,7 @@ HitPayload Renderer::TraceRay(const Ray& ray) {
 	}
 
 	if (closestSphere == -1)
-		return Miss(ray);
+		return MissHit(ray);
 	return ClosestHit(ray, closestHitDist, closestSphere);
 }
 HitPayload Renderer::ClosestHit(const Ray& ray, float hitDist, int32_t objI) {
@@ -114,7 +114,7 @@ HitPayload Renderer::ClosestHit(const Ray& ray, float hitDist, int32_t objI) {
 	payload.Position += closestSphere.Position;
 	return payload;
 }
-HitPayload Renderer::Miss(const Ray& ray) {
+HitPayload Renderer::MissHit(const Ray& ray) {
 	HitPayload payload;
 	payload.HitDistance = -1.0f;
 	payload.ObjectIndex = -1;

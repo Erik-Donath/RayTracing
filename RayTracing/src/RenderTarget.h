@@ -1,8 +1,8 @@
 #pragma once
 #include <memory>
-#include <iostream>
 #include "Walnut\Image.h"
 
+// TODO: Add support for rendering to a file
 class RenderTarget {
 public:
 	virtual uint32_t GetWidth() { return 0; }
@@ -19,7 +19,7 @@ public:
 	uint32_t* GetPixels() override { return mPixels; }
 	bool OnRezise(uint32_t width, uint32_t height) override {
 		if (!mImage) {
-			delete[] mPixels;
+			delete[] mPixels; // Just in case
 			mImage = std::make_shared<Walnut::Image>(width, height, Walnut::ImageFormat::RGBA);
 			mPixels = new uint32_t[width * height];
 			return true;
